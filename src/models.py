@@ -30,4 +30,41 @@ class Usuario(db.Model):
             "ciudad": self.ciudad,
             "rrss": self.rrss,
             # do not serialize the password, its a security breach
-        }      
+        }
+    
+
+class Perro(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    usuario_id = db.Column(db.Integer, foreign_key=True)
+    imagen = db.Column(db.Integer, nullable=False)
+    ubicacion = db.Column(db.String(120), nullable=False)
+    nombre = db.Column(db.String(120), nullable=True)
+    sexo = db.Column(db.String(60), nullable=False)
+    edad = db.Column(db.Integer, nullable=True)
+    peso = db.Column(db.Integer, nullable=True)
+    tamaño = db.Column(db.Integer, nullable=True)
+    raza = db.Column(db.String(60), nullable=True)
+    caracter = db.Column(db.String(60), nullable=True)
+    caracteristicas = db.Column(db.String(180), nullable=True)
+    patologias= db.Column(db.String(180), nullable=True)
+    adoptado = db.Column(db.Boolean(), nullable=False)
+    def __repr__(self):
+        return '<Perro %r>' % self.nombre
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "usuario": self.usuario_id,
+            "imagen": self.imagen,
+            "ubicacion": self.ubicacion,
+            "nombre": self.nombre,
+            "sexo": self.sexo,
+            "edad": self.edad,
+            "peso": self.peso,
+            "tamaño": self.tamaño,
+            "raza": self.raza,
+            "caracter": self.caracter,
+            "caracteristicas": self.caracteristicas,
+            "patologias": self.patologias,
+            "adoptado": self.adoptado,
+        }
