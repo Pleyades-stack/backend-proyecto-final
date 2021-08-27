@@ -20,7 +20,6 @@ class Usuario(db.Model):
     def serialize(self):
         return {
             "id": self.id,
-            "email": self.email,
             "tipo": self.tipo,
             "nombre": self.nombre,
             "apellido": self.apellido,
@@ -35,7 +34,7 @@ class Usuario(db.Model):
 
 class Perro(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    usuario_id = db.Column(db.Integer, foreign_key=True)
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'))
     imagen = db.Column(db.Integer, nullable=False)
     ubicacion = db.Column(db.String(120), nullable=False)
     nombre = db.Column(db.String(120), nullable=True)
