@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User
+from models import db, Usuario
 #from models import Person
 
 app = Flask(__name__)
@@ -25,21 +25,31 @@ setup_admin(app)
 def handle_invalid_usage(error):
     return jsonify(error.to_dict()), error.status_code
 
-# generate sitemap with all your endpoints
-@app.route('/')
-def sitemap():
-    return generate_sitemap(app)
+@app.route('/usuario/crear', methods=['POST'])
+#Decorador (ruta, metodo)
+def crear_usuario():
+#    nombre de la funcion
+#    solicitud parametro 
+    tipo = request.json["tipo"]
+    nombre = request.json["nombre"]
+    apellido = request.json["apellido"]
+    sexo = request.json["sexo"]
+    correo = request.json["correo"]
+    clave = request.json["clave"]
+    telefono = request.json["telefono"]
+    ciudad = request.json["ciudad"]
+    rrss = request.json["rrss"]
+    
+    nuevo_usuario= Usuario(tipo=tipo, nombre=nombre, apellido=apellido, sexo=sexo, correo=correo, clave=clave, telefono=telefono , ciudad=ciudad, rrss=rrss ) 
+    # crear nuevo con el clase Usuario
+    db.session.add(nuevo_usuario)
+    #agregar a la bd el nuevo usuario
+    db.session.commit()
+    #guardar en la bd el nuevo usuario
+    return jsonify(nuevo_usuario.serialize())
+#retorna, jsonify convierte en Json la respuesta y serialize pasa todos los campos del modelo dezglosa.
 
-@app.route('/user', methods=['GET'])
-def handle_hello():
 
-    response_body = {
-        "msg": "Hello, this is your GET /user response "
-    }
-
-    return jsonify(response_body), 200
-
-# this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3000))
     app.run(host='0.0.0.0', port=PORT, debug=False)
