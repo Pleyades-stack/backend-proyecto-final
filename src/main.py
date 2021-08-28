@@ -48,7 +48,7 @@ def crear_usuario():
     #guardar en la bd el nuevo usuario
     return jsonify(nuevo_usuario.serialize())
 #retorna, jsonify convierte en Json la respuesta y serialize pasa todos los campos del modelo dezglosa.
-
+#
 
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3000))
