@@ -76,9 +76,9 @@ def crear_usuario():
 @app.route('/usuario/login', methods=['POST'])
 def login():
     data = request.get_json()
-    if not data['nombre'] or not data['clave']:
+    if not data['correo'] or not data['clave']:
         return make_response({'Se necesita nombre y clave', 401})
-    usuario = Usuario.query.filter_by(name=data['nombre']).first()
+    usuario = Usuario.query.filter_by(correo=data['correo']).first()
     if check_password_hash(usuario.clave, data["clave"]):
         token = jwt.encode({'id': usuario.id, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, app.config['SECRET_KEY'], algorithm='HS256')
         return jsonify({'token': token})
