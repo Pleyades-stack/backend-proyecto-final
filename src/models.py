@@ -9,7 +9,7 @@ class Usuario(db.Model):
     apellido= db.Column(db.String(15), unique=False, nullable=False)
     sexo= db.Column(db.String(10), unique=False, nullable=False)
     correo= db.Column(db.String(50), unique=True, nullable=False)
-    clave= db.Column(db.String(8), unique=False, nullable=False)
+    clave= db.Column(db.Text(120), unique=False, nullable=False)
     telefono= db.Column(db.String(11), unique=False, nullable=False)
     ciudad= db.Column(db.String(20), unique=False, nullable=False)
     rrss= db.Column(db.String(50), unique=True, nullable=False)

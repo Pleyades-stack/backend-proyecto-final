@@ -6,13 +6,18 @@ from flask import Flask, request, jsonify, url_for
 from flask_migrate import Migrate
 from flask_swagger import swagger
 from flask_cors import CORS
+from werkzeug.security import generate_password_hash, check_password_hash
 from utils import APIException, generate_sitemap
 from admin import setup_admin
 from models import db, Usuario
+import jwt, datetime, time
 #from models import Person
+
+secret = 'jwt_secret_key'
 
 app = Flask(__name__)
 app.url_map.strict_slashes = False
+app.config['SECRET_KEY'] = secret
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DB_CONNECTION_STRING')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 MIGRATE = Migrate(app, db)
@@ -20,6 +25,23 @@ db.init_app(app)
 CORS(app)
 setup_admin(app)
 
+
+def tokenRequired(func):
+    @wraps(func)
+    def decorador(*args, **kwargs):
+        token = None
+
+        if 'token-acceso' in request.headers:
+            token = request.headers['token-acceso']
+        if not token:
+            return jsonify({'mensaje': 'Se necesita un token de acceso valido'})
+        try:  
+            data = jwt.decode(token, options={"verify_signature": False})
+            autentificacionUsuario = Usuario.query.filter_by(id=data['id']).first()  
+        except:  
+            return jsonify({'mensaje': 'Token invalido'})  
+        return func(user_auth, *args,  **kwargs)  
+    return decorador 
 # Handle/serialize errors like a JSON object
 @app.errorhandler(APIException)
 def handle_invalid_usage(error):
@@ -36,11 +58,12 @@ def crear_usuario():
     sexo = request.json["sexo"]
     correo = request.json["correo"]
     clave = request.json["clave"]
+    #Se encripta la contraseña
+    claveEncriptada = generate_password_hash(clave, method='sha256')
     telefono = request.json["telefono"]
     ciudad = request.json["ciudad"]
     rrss = request.json["rrss"]
-    
-    nuevo_usuario= Usuario(tipo=tipo, nombre=nombre, apellido=apellido, sexo=sexo, correo=correo, clave=clave, telefono=telefono , ciudad=ciudad, rrss=rrss ) 
+    nuevo_usuario= Usuario(tipo=tipo, nombre=nombre, apellido=apellido, sexo=sexo, correo=correo, clave=claveEncriptada, telefono=telefono , ciudad=ciudad, rrss=rrss ) 
     # crear nuevo con el clase Usuario
     db.session.add(nuevo_usuario)
     #agregar a la bd el nuevo usuario
@@ -48,6 +71,19 @@ def crear_usuario():
     #guardar en la bd el nuevo usuario
     return jsonify(nuevo_usuario.serialize())
 #retorna, jsonify convierte en Json la respuesta y serialize pasa todos los campos del modelo dezglosa.
+
+
+@app.route('/usuario/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    if not data['nombre'] or not data['clave']:
+        return make_response({'Se necesita nombre y clave', 401})
+    usuario = Usuario.query.filter_by(name=data['nombre']).first()
+    if check_password_hash(usuario.clave, data["clave"]):
+        token = jwt.encode({'id': usuario.id, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, app.config['SECRET_KEY'], algorithm='HS256')
+        return jsonify({'token': token})
+    return make_response('Verifique sus datos', 401)
+
 
 
 if __name__ == '__main__':
