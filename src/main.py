@@ -10,6 +10,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from utils import APIException, generate_sitemap
 from admin import setup_admin
 from models import db, Usuario
+from functools import wraps
 import jwt, datetime, time
 #from models import Person
 
@@ -40,7 +41,7 @@ def tokenRequired(func):
             autentificacionUsuario = Usuario.query.filter_by(id=data['id']).first()  
         except:  
             return jsonify({'mensaje': 'Token invalido'})  
-        return func(user_auth, *args,  **kwargs)  
+        return func(autentificacionUsuario, *args,  **kwargs)  
     return decorador 
 # Handle/serialize errors like a JSON object
 @app.errorhandler(APIException)
@@ -83,8 +84,6 @@ def login():
         token = jwt.encode({'id': usuario.id, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, app.config['SECRET_KEY'], algorithm='HS256')
         return jsonify({'token': token})
     return make_response('Verifique sus datos', 401)
-
-
 
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3000))
