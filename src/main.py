@@ -51,13 +51,13 @@ def crear_usuario():
 
 @app.route('/usuario/<id>', methods=['GET'])
 def obtener_usuario(id):
-    usuario_obtenido= usuario.query.get(id) 
+    usuario_obtenido= Usuario.query.get(id) 
     return jsonify(usuario_obtenido.serialize())
 
 @app.route('/usuario/<id>', methods=['PUT'])
 
 def actualizar_usuario(id):
-    usuario_obtenido= usuario.query.get(id)
+    usuario_obtenido= Usuario.query.get(id)
 
     usuario_obtenido.tipo = request.json["tipo"]
     usuario_obtenido.nombre = request.json["nombre"]
@@ -75,11 +75,11 @@ def actualizar_usuario(id):
 @app.route('/usuario/<id>', methods=['DELETE'])
 
 def Borrar_usuario(id):
-    usuario_obtenido= usuario.query.get(id)
+    usuario_obtenido= Usuario.query.get(id)
     
     db.session.delete(usuario_obtenido)
     db.session.commit()
-    return jsonify(usuario_obenido.serialize())
+    return jsonify({ "message": 'Usuario eliminado satisfactoriamente'})
 
 
 if __name__ == '__main__':
