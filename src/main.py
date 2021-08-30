@@ -27,7 +27,7 @@ CORS(app)
 setup_admin(app)
 
 
-def tokenRequired(func):
+def autenficacion(func):
     @wraps(func)
     def decorador(*args, **kwargs):
         token = None

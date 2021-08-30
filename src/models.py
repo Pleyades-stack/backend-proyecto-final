@@ -35,7 +35,7 @@ class Usuario(db.Model):
 class Perro(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'))
-    imagen = db.Column(db.Integer, nullable=False)
+    imagen = db.Column(db.String(), nullable=False)
     ubicacion = db.Column(db.String(120), nullable=False)
     nombre = db.Column(db.String(120), nullable=True)
     sexo = db.Column(db.String(60), nullable=False)
