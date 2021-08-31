@@ -53,7 +53,6 @@ class Perro(db.Model):
         return {
             "id": self.id,
             "usuario": self.usuario_id,
-            "imagen": self.imagen,
             "ubicacion": self.ubicacion,
             "nombre": self.nombre,
             "sexo": self.sexo,

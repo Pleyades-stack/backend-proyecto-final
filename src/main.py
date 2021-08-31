@@ -82,7 +82,6 @@ def obtener_usuario(id):
 
 def actualizar_usuario(id):
     usuario_obtenido= Usuario.query.get(id)
-
     usuario_obtenido.tipo = request.json["tipo"]
     usuario_obtenido.nombre = request.json["nombre"]
     usuario_obtenido.apellido = request.json["apellido"]
@@ -146,6 +145,53 @@ def crearPerro(user_auth, id):
     db.session.add(nuevoPerro)
     db.session.commit()
     return jsonify({'mensaje': 'perro creado con exito'})
+
+@app.route('/perro/editar/<id>', methods=['PUT'])
+@autenticacion
+def editarPerro(user_auth, id):
+    perroActual = Perro.query.get(id)
+    if perroActual.usuario_id != user_auth.id:
+        return jsonify({'message': 'No es el cuidador de este perro'})
+    perroActual.ubicacion = request.json["ubicacion"]
+    perroActual.nombre = request.json["nombre"]
+    perroActual.sexo = request.json["sexo"]
+    perroActual.edad = request.json["edad"]
+    perroActual.peso = request.json["peso"]
+    perroActual.tamaño = request.json["tamaño"]
+    perroActual.raza = request.json["raza"]
+    perroActual.caracter = request.json["caracter"]
+    perroActual.caracteristicas = request.json["caracteristicas"]
+    perroActual.patologias = request.json["patologias"]
+    db.session.commit()
+    return jsonify(perroActual.serialize())
+
+@app.route('/perro/<id>', methods=['GET'])
+def perro(id):
+    perroActual = Perro.query.get(id)
+    return jsonify(perroActual.serialize())
+
+@app.route('/perros', methods=['GET'])
+def perros():
+    perros = [perro.serialize() for perro in Perro.query.all()]
+    return jsonify({'perros': perros})
+
+@app.route('/perro/adoptado/<id>', methods=['PUT'])
+@autenticacion
+def perroAdoptado(user_auth, id):
+    perroActual = Perro.query.get(id)
+    if perroActual.usuario_id != user_auth.id:
+        return jsonify({'message': 'No es el cuidador de este perro'})
+    perroActual.adoptado = True
+    db.session.commit()
+    return jsonify(perroActual.serialize())
+
+@app.route('/usuario/perros', methods=['GET'])
+@autenticacion
+def perrosUsuario(user_auth):
+    perrosDeUsuario = [perro.serialize() for perro in Perro.query.filter_by(usuario_id=user_auth.id).all()]
+    return jsonify({'Perros de Usuario': perrosDeUsuario})
+
+
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3000))
     app.run(host='0.0.0.0', port=PORT, debug=False)
