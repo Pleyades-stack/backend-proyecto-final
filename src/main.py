@@ -9,7 +9,7 @@ from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, Usuario, Perro
+from models import db, Usuario, Perro, Imagen
 from functools import wraps
 import jwt, datetime, time
 import cloudinary.uploader as uploader
@@ -121,9 +121,9 @@ def login():
         return jsonify({'token': token})
     return make_response('Verifique sus datos', 401)
 
-@app.route('/perro/crear/<id>', methods=['POST'])
+@app.route('/perro/crear/', methods=['POST'])
 @autenticacion
-def crearPerro(user_auth, id):
+def crearPerro(user_auth):
     ubicacion=request.json["ubicacion"]
     nombre=request.json["nombre"]
     sexo=request.json["sexo"]
@@ -135,7 +135,7 @@ def crearPerro(user_auth, id):
     caracteristicas=request.json["caracteristicas"]
     patologias=request.json["patologias"]
     nuevoPerro = Perro(
-        usuario_id=id, 
+        usuario_id=user_auth.id, 
         ubicacion=ubicacion,
         nombre=nombre,
         sexo=sexo,
@@ -180,7 +180,7 @@ def perros():
     perros = [perro.serialize() for perro in Perro.query.all()]
     return jsonify({'perros': perros})
 
-@app.route('/perro/adoptado/<d>', methods=['PUT'])
+@app.route('/perro/adoptado/<id>', methods=['PUT'])
 @autenticacion
 def perroAdoptado(user_auth, id):
     perroActual = Perro.query.get(id)
@@ -194,15 +194,34 @@ def perroAdoptado(user_auth, id):
 @autenticacion
 def perrosUsuario(user_auth):
     perrosDeUsuario = [perro.serialize() for perro in Perro.query.filter_by(usuario_id=user_auth.id).all()]
-    return jsonify({'Perros de Usuario': perrosDeUsuario})
+    return jsonify({'perrosUsuario': perrosDeUsuario})
 
-@app.route('/perro/<id>/imagen', methods=['POST'])
+@app.route('/perro/imagen/<id>', methods=['POST'])
 @autenticacion
 def imagenNueva(user_auth, id):
     image_file = request.files['file']
+    #try:
     response = uploader.upload(image_file)
-    print(response)
+    nuevaImagen = Imagen(url_imagen=response["secure_url"], perro_id=id, public_id=response["public_id"])
+    db.session.add(nuevaImagen)
+    db.session.commit()
+    return jsonify({'message': 'Imagen guardada con exito', 'response': response , "status": 200})
+    #except:
+     #   return jsonify({'message': 'Ha ocurrido un error'}, 400)
 
+@app.route('/perro/imagen/<id>', methods=['GET'])
+def getImagen(id):
+    imagenesPerro = [imagen.serialize() for imagen in Imagen.query.filter_by(perro_id=id).all()]
+    return jsonify({'imagenes': imagenesPerro})
+
+@app.route('/perro/imagen/<id>', methods=['delete'])
+@autenticacion
+def borrarImagen(user_auth, id):
+    imagenPerro = Imagen.query.get(id)
+    response = uploader.destroy(imagenPerro.public_id)
+    db.session.delete(imagenPerro)
+    db.session.commit()
+    return jsonify({"response": response})
 
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3000))

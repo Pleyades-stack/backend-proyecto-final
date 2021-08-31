@@ -70,6 +70,7 @@ class Imagen(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     url_imagen = db.Column(db.Text(), nullable=False)
     perro_id = db.Column(db.Integer, db.ForeignKey('perro.id'))
+    public_id = db.Column(db.Text(), nullable=True)
 
     def __repr__(self):
         return '<Imagen %r>' % self.url_imagen
