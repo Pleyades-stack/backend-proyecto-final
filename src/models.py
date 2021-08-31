@@ -35,13 +35,12 @@ class Usuario(db.Model):
 class Perro(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'))
-    imagen = db.Column(db.Integer, nullable=False)
     ubicacion = db.Column(db.String(120), nullable=False)
     nombre = db.Column(db.String(120), nullable=True)
     sexo = db.Column(db.String(60), nullable=False)
     edad = db.Column(db.Integer, nullable=True)
     peso = db.Column(db.Integer, nullable=True)
-    tamaño = db.Column(db.Integer, nullable=True)
+    tamaño = db.Column(db.String(120), nullable=True)
     raza = db.Column(db.String(60), nullable=True)
     caracter = db.Column(db.String(60), nullable=True)
     caracteristicas = db.Column(db.String(180), nullable=True)
@@ -54,7 +53,6 @@ class Perro(db.Model):
         return {
             "id": self.id,
             "usuario": self.usuario_id,
-            "imagen": self.imagen,
             "ubicacion": self.ubicacion,
             "nombre": self.nombre,
             "sexo": self.sexo,
@@ -66,4 +64,20 @@ class Perro(db.Model):
             "caracteristicas": self.caracteristicas,
             "patologias": self.patologias,
             "adoptado": self.adoptado,
+        }
+
+class Imagen(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    url_imagen = db.Column(db.Text(), nullable=False)
+    perro_id = db.Column(db.Integer, db.ForeignKey('perro.id'))
+    public_id = db.Column(db.Text(), nullable=True)
+
+    def __repr__(self):
+        return '<Imagen %r>' % self.url_imagen
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'url_imagen': self.url_imagen,
+            'perro_id': self.perro_id
         }
