@@ -12,6 +12,8 @@ from admin import setup_admin
 from models import db, Usuario, Perro
 from functools import wraps
 import jwt, datetime, time
+import cloudinary.uploader as uploader
+
 #from models import Person
 
 secret = 'jwt_secret_key'
@@ -21,6 +23,9 @@ app.url_map.strict_slashes = False
 app.config['SECRET_KEY'] = secret
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DB_CONNECTION_STRING')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config.from_mapping(
+    CLOUDINARY_URL=os.environ.get('CLOUDINARY_URL')
+)
 MIGRATE = Migrate(app, db)
 db.init_app(app)
 CORS(app)
@@ -175,7 +180,7 @@ def perros():
     perros = [perro.serialize() for perro in Perro.query.all()]
     return jsonify({'perros': perros})
 
-@app.route('/perro/adoptado/<id>', methods=['PUT'])
+@app.route('/perro/adoptado/<d>', methods=['PUT'])
 @autenticacion
 def perroAdoptado(user_auth, id):
     perroActual = Perro.query.get(id)
@@ -190,6 +195,13 @@ def perroAdoptado(user_auth, id):
 def perrosUsuario(user_auth):
     perrosDeUsuario = [perro.serialize() for perro in Perro.query.filter_by(usuario_id=user_auth.id).all()]
     return jsonify({'Perros de Usuario': perrosDeUsuario})
+
+@app.route('/perro/<id>/imagen', methods=['POST'])
+@autenticacion
+def imagenNueva(user_auth, id):
+    image_file = request.files['file']
+    response = uploader.upload(image_file)
+    print(response)
 
 
 if __name__ == '__main__':

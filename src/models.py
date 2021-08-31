@@ -65,3 +65,18 @@ class Perro(db.Model):
             "patologias": self.patologias,
             "adoptado": self.adoptado,
         }
+
+class Imagen(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    url_imagen = db.Column(db.Text(), nullable=False)
+    perro_id = db.Column(db.Integer, db.ForeignKey('perro.id'))
+
+    def __repr__(self):
+        return '<Imagen %r>' % self.url_imagen
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'url_imagen': self.url_imagen,
+            'perro_id': self.perro_id
+        }
