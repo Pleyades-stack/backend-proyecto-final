@@ -9,7 +9,7 @@ from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, Usuario
+from models import db, Usuario, Perro
 from functools import wraps
 import jwt, datetime, time
 #from models import Person
@@ -27,7 +27,7 @@ CORS(app)
 setup_admin(app)
 
 
-def autenficacion(func):
+def autenticacion(func):
     @wraps(func)
     def decorador(*args, **kwargs):
         token = None
@@ -117,6 +117,35 @@ def login():
         return jsonify({'token': token})
     return make_response('Verifique sus datos', 401)
 
+@app.route('/perro/crear/<id>', methods=['POST'])
+@autenticacion
+def crearPerro(user_auth, id):
+    ubicacion=request.json["ubicacion"]
+    nombre=request.json["nombre"]
+    sexo=request.json["sexo"]
+    edad=request.json["edad"]
+    peso=request.json["peso"]
+    tamaño=request.json["tamaño"]
+    raza=request.json["raza"]
+    caracter=request.json["caracter"]
+    caracteristicas=request.json["caracteristicas"]
+    patologias=request.json["patologias"]
+    nuevoPerro = Perro(
+        usuario_id=id, 
+        ubicacion=ubicacion,
+        nombre=nombre,
+        sexo=sexo,
+        edad=edad,
+        peso=peso,
+        tamaño=tamaño,
+        raza=raza,
+        caracter=caracter,
+        caracteristicas=caracteristicas,
+        patologias=patologias,
+        adoptado=False)
+    db.session.add(nuevoPerro)
+    db.session.commit()
+    return jsonify({'mensaje': 'perro creado con exito'})
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3000))
     app.run(host='0.0.0.0', port=PORT, debug=False)
