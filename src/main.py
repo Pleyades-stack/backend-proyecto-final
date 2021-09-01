@@ -87,10 +87,6 @@ def obtener_usuario(id):
 
 def actualizar_usuario(id):
     usuario_obtenido= Usuario.query.get(id)
-<<<<<<< HEAD
-
-=======
->>>>>>> crear-perro
     usuario_obtenido.tipo = request.json["tipo"]
     usuario_obtenido.nombre = request.json["nombre"]
     usuario_obtenido.apellido = request.json["apellido"]
