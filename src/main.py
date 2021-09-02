@@ -83,10 +83,10 @@ def obtener_usuario(id):
     usuario_obtenido= Usuario.query.get(id) 
     return jsonify(usuario_obtenido.serialize())
 
-@app.route('/usuario/<id>', methods=['PUT'])
-
-def actualizar_usuario(id):
-    usuario_obtenido= Usuario.query.get(id)
+@app.route('/usuario/', methods=['PUT'])
+@autenticacion
+def actualizar_usuario(user_auth):
+    usuario_obtenido= Usuario.query.get(user_auth.id)
     usuario_obtenido.tipo = request.json["tipo"]
     usuario_obtenido.nombre = request.json["nombre"]
     usuario_obtenido.apellido = request.json["apellido"]
@@ -100,10 +100,10 @@ def actualizar_usuario(id):
     db.session.commit()
     return jsonify(usuario_obtenido.serialize())
 
-@app.route('/usuario/<id>', methods=['DELETE'])
-
-def Borrar_usuario(id):
-    usuario_obtenido= Usuario.query.get(id)
+@app.route('/usuario/', methods=['DELETE'])
+@autenticacion
+def Borrar_usuario(user_auth):
+    usuario_obtenido= Usuario.query.get(user_auth.id)
     
     db.session.delete(usuario_obtenido)
     db.session.commit()
