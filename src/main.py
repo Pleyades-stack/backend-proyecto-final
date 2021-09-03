@@ -83,6 +83,12 @@ def obtener_usuario(id):
     usuario_obtenido= Usuario.query.get(id) 
     return jsonify(usuario_obtenido.serialize())
 
+@app.route('/usuario/profile', methods=['GET'])
+@autenticacion
+def perfilUsuario(user_auth):
+    usuario = Usuario.query.get(user_auth.id)
+    return jsonify(usuario.serialize())
+
 @app.route('/usuario/', methods=['PUT'])
 @autenticacion
 def actualizar_usuario(user_auth):
